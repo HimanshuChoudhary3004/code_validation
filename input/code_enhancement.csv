@@ -1,0 +1,17 @@
+file_extension,original_code,enhancement_prompt,enhanced_code
+abap,WRITE: 'Total Amount'.,Format the output with currency symbol and proper number format,"DATA: lv_amount TYPE p DECIMALS 2 VALUE '1234.56'.
+WRITE: / 'Total Amount: $', lv_amount USING EDIT MASK '__.___.__9.99'."
+sql,SELECT name FROM vendors;,Filter only active vendors and order alphabetically,SELECT name FROM vendors WHERE status = 'active' ORDER BY name ASC;
+plsql,SELECT * FROM orders;,Convert this into a stored procedure that logs each order ID to console,"CREATE OR REPLACE PROCEDURE log_orders IS
+BEGIN
+  FOR rec IN (SELECT * FROM orders) LOOP
+    DBMS_OUTPUT.PUT_LINE('Order ID: ' || rec.order_id);
+  END LOOP;
+END;"
+abap,SELECT * FROM sflight INTO TABLE lt_sflight.,Restrict to flights with seats available and limit to 10 rows,SELECT * FROM sflight INTO TABLE lt_sflight WHERE seatsmax > seatsocc UP TO 10 ROWS.
+sql,UPDATE employees SET bonus = 1000;,Update bonuses only for employees with performance rating 'A',UPDATE employees SET bonus = 1000 WHERE performance_rating = 'A';
+plsql,DELETE FROM audit_logs;,Wrap the delete logic in a procedure and add transaction control,"CREATE OR REPLACE PROCEDURE clear_logs IS
+BEGIN
+  DELETE FROM audit_logs;
+  COMMIT;
+END;"

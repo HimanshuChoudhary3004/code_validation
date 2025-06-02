@@ -1,0 +1,23 @@
+file_extension,prompt,code
+abap,Write ABAP code to display the current date in SAP GUI,"DATA lv_date TYPE sy-datum.
+lv_date = sy-datum.
+WRITE: / 'Today''s Date:', lv_date."
+rap,Create a RAP behavior implementation to fetch customer data from ZCUSTOMER,"METHOD read_entity.
+SELECT * FROM zcustomer INTO TABLE result.
+ENDMETHOD."
+ui5,Create a UI5 controller to show a message toast when a button is clicked,"sap.ui.define([
+  'sap/ui/core/mvc/Controller',
+  'sap/m/MessageToast'
+], function(Controller, MessageToast) {
+  return Controller.extend('demo.controller.Main', {
+    onPress: function () {
+      MessageToast.show('Button Pressed');
+    }
+  });
+});"
+sql,Write a SQL query to retrieve names and emails of active users,"SELECT name, email FROM users WHERE status = 'active';"
+plsql,Write a PL/SQL procedure to grant 10% bonus to high performers,"CREATE OR REPLACE PROCEDURE update_bonus IS
+BEGIN
+  UPDATE employees SET bonus = salary * 0.10 WHERE performance_rating = 'A';
+  COMMIT;
+END;"

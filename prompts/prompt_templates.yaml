@@ -1,0 +1,219 @@
+code_generation:
+
+  functional_correctness: |
+    Evaluate whether the following {{lang}} code fulfills the described task.
+
+    Task:
+    '{{prompt}}'
+
+    Code:
+    {{code}}
+
+    Use these evaluation factors:
+    - Coverage of all task steps (0.0-1.0)
+    - Correctness of logic (0.0-1.0)
+    - Presence of syntax issues (1.0 = no issues, 0.0 = unexecutable)
+
+    Compute score:
+    SCORE = 0.4 * coverage + 0.4 * logic + 0.2 * syntax
+
+    Respond in this format:
+    SCORE: <final numeric score between 0.0 and 1.0>
+    EXPLANATION:
+    - Coverage: ...
+    - Logic: ...
+    - Syntax: ...
+    - Final score = ...
+
+  maintainability: |
+    Evaluate the maintainability of the following {{lang}} code.
+
+    Code:
+    {{code}}
+
+    Criteria (rate 0.0-1.0 for each):
+    - Modularity (functions, structure)
+    - Naming conventions
+    - Code duplication (1.0 = none)
+    - Use of comments and documentation
+
+    Compute:
+    SCORE = 1 - ((1 - modularity)  * 0.3 + (1 - naming)  * 0.2 + (1 - duplication)  * 0.2 + (1 - comments)  * 0.3)
+
+    Respond in this format:
+    SCORE: <final score>
+    EXPLANATION:
+    - Modularity: ...
+    - Naming: ...
+    - Duplication: ...
+    - Comments: ...
+    - Final score = ...
+
+  code_smells: |
+    Analyze this {{lang}} code for code smells.
+
+    Code:
+    {{code}}
+
+    Look for:
+    - Long methods
+    - Repetition
+    - Deprecated statements (e.g., WRITE in ABAP)
+    - Deep nesting (more than 3 levels)
+    - Poor naming or hardcoded values
+    - Missing modularity
+    - Unclear intent or missing documentation
+
+    Count all distinct smells and calculate:
+    SCORE = 1 - (number_of_smells / 5)
+
+    Respond in this format:
+    SCORE: <numeric score between 0.0 and 1.0>
+    EXPLANATION:
+    - Smell 1: <issue> (Line X)
+    - Smell 2: <issue> (Line Y)
+    - ...
+    - Final score = ...
+
+code_enhancement:
+
+  functional_correctness: |
+    Does the enhanced {{lang}} code preserve the functional behavior of the original?
+
+    Original Code:
+    {{original}}
+
+    Enhanced Code:
+    {{enhanced}}
+
+    Evaluate:
+    - Preservation of all logic (0.0-1.0)
+    - Avoidance of side effects (0.0-1.0)
+    - Output or behavior matches original (0.0-1.0)
+
+    Final score = average of these
+
+    Respond:
+    SCORE: <final score>
+    EXPLANATION: <logic, side effect, output comparison>
+
+  maintainability: |
+    Does the enhanced {{lang}} code improve maintainability over the original?
+
+    Enhanced Code:
+    {{enhanced}}
+
+    Score based on:
+    - Cleaner structure (0.0-1.0)
+    - Better naming (0.0-1.0)
+    - Improved documentation (0.0-1.0)
+
+    Final SCORE = average of above
+
+    Respond:
+    SCORE: <score>
+    EXPLANATION:
+    - Structure: ...
+    - Naming: ...
+    - Comments: ...
+    - Final score = ...
+
+  smell_delta: |
+    Compare the number of code smells in both versions.
+
+    Original Code:
+    {{original}}
+
+    Enhanced Code:
+    {{enhanced}}
+
+    Analyze both and determine:
+    - Smells removed
+    - Smells added
+    - Smells unchanged
+
+    Compute:
+    SCORE = 1.0 if enhanced has fewer smells,
+            0.5 if smell count is unchanged,
+            0.0 if enhanced has more smells
+
+    Respond:
+    SCORE: <score>
+    EXPLANATION:
+    - Original smells: ...
+    - Enhanced smells: ...
+    - Smells removed: ...
+    - Smells added: ...
+    - Final score = ...
+
+  cyclomatic_delta: |
+    Compare control flow complexity between the original and enhanced code.
+
+    Original:
+    {{original}}
+
+    Enhanced:
+    {{enhanced}}
+
+    Calculate:
+    SCORE = 1.0 if complexity reduced,
+            0.5 if unchanged,
+            0.0 if increased
+
+    Respond:
+    SCORE: <score>
+    EXPLANATION: <any additional or removed IF/CASE/LOOP statements>
+
+  cognitive_delta: |
+    Compare nesting and mental traceability of both code versions.
+
+    Original:
+    {{original}}
+
+    Enhanced:
+    {{enhanced}}
+
+    SCORE = 1.0 if nesting was reduced or logic simplified,
+            0.5 if same,
+            0.0 if harder to understand
+
+    Respond:
+    SCORE: <score>
+    EXPLANATION: <how readability changed>
+
+  goal_fulfillment: |
+    Does the enhanced code fulfill the enhancement objective?
+
+    Enhancement Goal:
+    '{{enhancement_prompt}}'
+
+    Enhanced Code:
+    {{enhanced}}
+
+    Rate:
+    - Goal coverage (0.0-1.0)
+    - Quality of implementation (0.0-1.0)
+
+    SCORE = average of above
+
+    Respond:
+    SCORE: <score>
+    EXPLANATION: <goal match and implementation quality>
+
+  regression_safety: |
+    Check if the enhanced code preserves original functionality.
+
+    Original:
+    {{original}}
+
+    Enhanced:
+    {{enhanced}}
+
+    Score:
+    - Behavior match = 1.0
+    - Minor change = 0.5
+    - Functional loss = 0.0
+
+    Respond:
+    SCORE: <score>
+    EXPLANATION: <summary of any regressions>

@@ -1,0 +1,8 @@
+openai
+pandas
+lizard
+pyyaml
+python-dotenv
+jinja2
+pyyaml
+requests

@@ -1,0 +1,77 @@
+dual_mode: true
+
+# Code generation settings
+code_generation:
+  enabled: true
+  model: gpt-3.5-turbo
+
+  kpis:
+    hallucination:
+      enabled: true
+      threshold: 0.6
+
+    technical_bias:
+      enabled: true
+      threshold: 0.7
+
+    functional_correctness:
+      enabled: true
+      threshold: 0.8
+
+    maintainability:
+      enabled: true
+      threshold: 0.75
+
+    code_smells:
+      enabled: true
+      threshold: 0.85
+
+    cyclomatic_complexity:
+      enabled: true
+      threshold: 10
+
+    cognitive_complexity:
+      enabled: true
+      threshold: 12
+
+# Code enhancement settings
+code_enhancement:
+  enabled: true
+  model: gpt-3.5-turbo
+
+  kpis:
+    hallucination:
+      enabled: true
+      threshold: 0.6
+
+    technical_bias:
+      enabled: true
+      threshold: 0.7
+
+    functional_correctness:
+      enabled: true
+      threshold: 0.8
+
+    maintainability:
+      enabled: true
+      threshold: 0.75
+
+    smell_delta:
+      enabled: true
+      threshold: 0.0
+
+    cyclomatic_delta:
+      enabled: true
+      threshold: 0
+
+    cognitive_delta:
+      enabled: true
+      threshold: 0
+
+    goal_fulfillment:
+      enabled: true
+      threshold: 0.85
+
+    regression_safety:
+      enabled: true
+      threshold: 0.9

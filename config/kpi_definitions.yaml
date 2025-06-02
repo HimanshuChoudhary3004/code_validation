@@ -1,0 +1,98 @@
+
+code_generation:
+  functional_correctness:
+    definition: "Assesses if the generated code correctly fulfills the semantic and logical requirements of the task described in the natural language prompt. This involves checking alignment between intent (described behavior) and implementation (executed behavior)."
+    purpose: "Ensure that the generated code meets the functional requirements implied in the prompt."
+    evaluated_by: "GPT"
+    output:
+      - functional_correctness_score
+      - functional_correctness_explanation
+
+  maintainability:
+    definition: "Measures how easily a developer can understand, modify, and extend the code over time. Key factors include modularity, naming consistency, minimal duplication, adherence to SAP Clean ABAP guidelines (for ABAP), or best practices in SQL/RAP/UI5."
+    purpose: "Promote clean, modular, and standard-compliant code that minimizes long-term technical debt."
+    evaluated_by: "GPT or static heuristics"
+    output:
+      - maintainability_score
+      - maintainability_explanation
+
+  code_smells:
+    definition: "Detects patterns in the code that indicate potential design or implementation issues without necessarily being bugs. Examples include long functions, large classes, SELECT * usage in SQL, nested SELECTs in PLSQL, use of obsolete ABAP statements, and missing separation of concerns in UI5."
+    purpose: "Identify anti-patterns that increase the likelihood of defects, poor readability, or difficult maintenance."
+    evaluated_by: "Static pattern matching or GPT heuristics"
+    output:
+      - code_smells_score
+      - code_smells_explanation
+
+  cyclomatic_complexity:
+    definition: "Quantifies the number of linearly independent paths through a program’s source code. For ABAP, SQL, and RAP, this includes IF, CASE, WHILE, LOOP, and FORM routines. The formula used is: M = E − N + 2P, where E = edges, N = nodes, P = connected components (typically 1 for a single function)."
+    purpose: "Lower complexity indicates fewer paths and hence simpler logic, making code easier to test and debug."
+    evaluated_by: "Lizard or language-specific AST tools"
+    output:
+      - cyclomatic_complexity_score
+      - cyclomatic_complexity_explanation
+
+  cognitive_complexity:
+    definition: "Measures how difficult code is to read and understand by taking into account human mental effort. It penalizes nested logic, recursion, and jumps in flow (e.g., GOTO in ABAP or deeply nested CASEs in SQL). It’s additive: more nesting = higher score, but no formal mathematical model."
+    purpose: "Capture readability burden even when cyclomatic complexity is low, focusing on mental load."
+    evaluated_by: "Nesting analysis and GPT reasoning"
+    output:
+      - cognitive_complexity_score
+      - cognitive_complexity_explanation
+
+code_enhancement:
+  functional_correctness:
+    definition: "Verifies that the enhanced code preserves all behaviors and outcomes of the original code while incorporating new functionality. Uses GPT to infer regression-free transformations."
+    purpose: "Ensure enhancements do not break existing features or introduce bugs."
+    evaluated_by: "GPT"
+    output:
+      - functional_correctness_score
+      - functional_correctness_explanation
+
+  maintainability:
+    definition: "Evaluates whether the enhancements improve or preserve the code’s readability, modularity, and adaptability. GPT assesses structural cohesion and simplification of logic."
+    purpose: "Encourage improvements that make the code easier to understand and extend."
+    evaluated_by: "GPT"
+    output:
+      - maintainability_score
+      - maintainability_explanation
+
+  smell_delta:
+    definition: "Compares the density and severity of code smells before and after enhancement. Smells reduced = 1.0, added smells = 0.0. Heuristics include SELECT * usage, overly complex joins, and deep procedural logic in ABAP or SQL."
+    purpose: "Ensure enhancements result in cleaner code."
+    evaluated_by: "Static diff or GPT"
+    output:
+      - smell_delta_score
+      - smell_delta_explanation
+
+  cyclomatic_delta:
+    definition: "Measures change in branching complexity after enhancement. Derived by comparing M values (cyclomatic complexity) before and after."
+    purpose: "Discourage unnecessarily complex logic additions."
+    evaluated_by: "Lizard diff"
+    output:
+      - cyclomatic_delta_score
+      - cyclomatic_delta_explanation
+
+  cognitive_delta:
+    definition: "Compares nesting and human readability effort between original and enhanced code. Identifies changes that make the code easier or harder to mentally parse."
+    purpose: "Promote simplification and better readability."
+    evaluated_by: "Nesting comparison or GPT"
+    output:
+      - cognitive_delta_score
+      - cognitive_delta_explanation
+
+  goal_fulfillment:
+    definition: "Determines if the enhanced code successfully fulfills the explicit objective stated in the enhancement prompt (e.g., added validation logic, performance tuning, or error handling)."
+    purpose: "Ensure the enhancement achieves its intent."
+    evaluated_by: "GPT"
+    output:
+      - goal_fulfillment_score
+      - goal_fulfillment_explanation
+
+  regression_safety:
+    definition: "Checks whether the original behavior remains unchanged in the enhanced code. Ensures that enhancements are additive and do not interfere with existing logic."
+    purpose: "Validate that enhancements are non-destructive."
+    evaluated_by: "GPT behavioral comparison"
+    output:
+      - regression_safety_score
+      - regression_safety_explanation

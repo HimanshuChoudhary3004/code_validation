@@ -1,0 +1,67 @@
+file_extension,prompt,code,functional_correctness_score,functional_correctness_explanation,maintainability_score,maintainability_explanation,code_smells_score,code_smells_explanation,cyclomatic_complexity_score,cyclomatic_complexity_explanation,cognitive_complexity_score,cognitive_complexity_explanation
+abap,Write ABAP code to display the current date in SAP GUI,"DATA lv_date TYPE sy-datum.
+lv_date = sy-datum.
+WRITE: / 'Today''s Date:', lv_date.",1.0,"- Coverage: The code covers all the task steps by declaring a variable, assigning the current date to it, and displaying it.
+- Logic: The logic is correct as it correctly assigns the current date to the variable and displays it.
+- Syntax: There are no syntax issues in the code.
+- Final score = 1.0",0.9,"- Modularity: 1.0 (The code is simple and straightforward, but could benefit from breaking it into smaller functions for better modularity)
+- Naming: 1.0 (Variable name lv_date is clear and follows naming conventions)
+- Duplication: 1.0 (There is no code duplication)
+- Comments: 0.5 (There are no comments in the code to explain its purpose or functionality)
+- Final score = 0.9",0.8,"- Smell 1: Hardcoded value 'Today''s Date:' (Line 3)
+- Final score = 0.8 (1 - 1/5)",1.0,Cyclomatic complexity is 0. Target is under 10.,1.0,Estimated nesting level is 0. Target should be under 12.
+rap,Create a RAP behavior implementation to fetch customer data from ZCUSTOMER,"METHOD read_entity.
+SELECT * FROM zcustomer INTO TABLE result.
+ENDMETHOD.",0.8,"- Coverage: 1.0 (The code fetches customer data from ZCUSTOMER as required)
+- Logic: 0.8 (The code selects all fields from ZCUSTOMER into a result table, which fulfills the task. However, it lacks error handling and filtering options)
+- Syntax: 1.0 (No syntax issues present)
+- Final score = 0.8",0.7,"- Modularity: 0.8 (The code is contained within a method, but could benefit from further modularization)
+- Naming: 0.9 (The method name is clear and follows naming conventions)
+- Duplication: 1.0 (There is no code duplication)
+- Comments: 0.5 (There are no comments or documentation provided)
+- Final score = 0.7",0.6,"- Smell 1: Long method (3 lines)
+- Smell 2: Poor naming (zcustomer, result)
+- Smell 3: Missing modularity
+- Final score = 1 - (3 / 5) = 0.6",1.0,Cyclomatic complexity is 0. Target is under 10.,1.0,Estimated nesting level is 0. Target should be under 12.
+ui5,Create a UI5 controller to show a message toast when a button is clicked,"sap.ui.define([
+  'sap/ui/core/mvc/Controller',
+  'sap/m/MessageToast'
+], function(Controller, MessageToast) {
+  return Controller.extend('demo.controller.Main', {
+    onPress: function () {
+      MessageToast.show('Button Pressed');
+    }
+  });
+});",1.0,"- Coverage: The code covers all the task steps by creating a UI5 controller and showing a message toast when a button is clicked.
+- Logic: The logic is correct as the onPress function is called when the button is clicked, and it shows the message toast.
+- Syntax: There are no syntax issues in the code.
+- Final score = 1.0",0.9,"- Modularity: The code is modular as it follows the UI5 module definition pattern and separates concerns by defining the controller and message toast functionality separately. Score: 1.0
+- Naming: The naming conventions used are clear and follow standard UI5 naming conventions. Score: 1.0
+- Duplication: There is no code duplication in the provided code snippet. Score: 1.0
+- Comments: While the code is concise and clear, it lacks comments and documentation which could help in understanding the code better. Score: 0.7
+- Final score = 0.9",1.0,"- No long methods, repetition, deprecated statements, deep nesting, poor naming or hardcoded values, missing modularity, unclear intent or missing documentation present in the provided code.
+- Final score = 1.0",1.0,Cyclomatic complexity is 0. Target is under 10.,1.0,Estimated nesting level is 0. Target should be under 12.
+sql,Write a SQL query to retrieve names and emails of active users,"SELECT name, email FROM users WHERE status = 'active';",1.0,"- Coverage: The query retrieves names and emails of active users as requested.
+- Logic: The logic is correct as it filters the users based on the 'active' status.
+- Syntax: There are no syntax issues in the query.
+- Final score = 1.0",0.9,"- Modularity: The code is not modular as it is a simple SELECT statement without any functions or structure. (0.7)
+- Naming: The naming conventions are clear with 'name', 'email', and 'status' being descriptive. (1.0)
+- Duplication: There is no code duplication in the provided code. (1.0)
+- Comments: There are no comments or documentation provided in the code. (0.0)
+- Final score = 0.9",1.0,"- No code smells detected.
+- Final score = 1.0",1.0,Cyclomatic complexity is 0. Target is under 10.,1.0,Estimated nesting level is 0. Target should be under 12.
+plsql,Write a PL/SQL procedure to grant 10% bonus to high performers,"CREATE OR REPLACE PROCEDURE update_bonus IS
+BEGIN
+  UPDATE employees SET bonus = salary * 0.10 WHERE performance_rating = 'A';
+  COMMIT;
+END;",0.8,"- Coverage: 1.0 (The code updates the bonus for high performers as requested)
+- Logic: 0.8 (The logic is correct in updating the bonus for employees with a performance rating of 'A', but it does not specifically grant a 10% bonus as requested)
+- Syntax: 1.0 (There are no syntax issues)
+- Final score = 0.8",0.8,"- Modularity: 0.8 (The code is not very modular as it is a single procedure without any functions or structure)
+- Naming: 1.0 (The naming conventions used are clear and descriptive)
+- Duplication: 1.0 (There is no code duplication in the provided code)
+- Comments: 0.5 (There are no comments or documentation provided in the code)
+- Final score = 0.8",1.0,"- Smell 1: Hardcoded value for bonus calculation (Line 3)
+- Smell 2: Missing modularity, the bonus calculation logic is directly in the procedure without any abstraction (Line 3)
+- Smell 3: Unclear intent, the purpose of the procedure is not clearly documented (Line 1)
+- Final score = 1 - (3/5) = 0.4",1.0,Cyclomatic complexity is 0. Target is under 10.,1.0,Estimated nesting level is 0. Target should be under 12.

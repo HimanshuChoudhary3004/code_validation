@@ -45,6 +45,8 @@ functional_correctness:
         "syntax_correctness": "The code compiles and executes successfully."
       }
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 maintainability:
   description: >
@@ -76,6 +78,7 @@ maintainability:
     - Evaluate and score each component from 0–1.
     - Give detailed explanations.
     - Provide final_score using weighted formula.
+    - compute_final_score: 1 - (0.3 * modularity + 0.3 * readability + 0.2 * comment_quality + 0.2 * naming_conventions)
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -94,6 +97,8 @@ maintainability:
         "naming_conventions": "Variables are reasonably well-named."
       }
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 code_smells:
   description: >
@@ -124,7 +129,7 @@ code_smells:
     Instructions:
     - Evaluate and score each smell from 0–1.
     - Explain where and why the smell occurs.
-    - Compute the final_score.
+    - compute_final_score: 0.3 * redundant_code + 0.2 * deep_nesting + 0.25 * unused_variables + 0.25 * long_functions
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -135,7 +140,7 @@ code_smells:
       "deep_nesting": 0.6,
       "unused_variables": 0.5,
       "long_functions": 0.4,
-      "_final_score_calc": "1 - (0.3*0.2 + 0.2*0.6 + 0.25*0.5 + 0.25*0.4) = 1 - 0.405 = 0.595",
+      "_final_score_calc": "0.3*0.2 + 0.2*0.6 + 0.25*0.5 + 0.25*0.4 = 0.405,
       "_explanation": {
         "redundant_code": "Lines 5 and 10 repeat the same logic.",
         "deep_nesting": "Nested IFs found inside loops at line 20.",
@@ -143,6 +148,8 @@ code_smells:
         "long_functions": "Function starting at line 2 is 45 lines long."
       }
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 hallucination:
   description: >
@@ -170,6 +177,7 @@ hallucination:
     - Identify hallucinated parts and score each sub-criteria (0–1).
     - Explain clearly what is out-of-context or imaginary.
     - Return final_score using formula.
+    - compute_final_score: 0.5 * out_of_context_code + 0.5 * imaginary_functions_or_packages
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -178,12 +186,14 @@ hallucination:
     {
       "out_of_context_code": 0.9,
       "imaginary_functions_or_packages": 0.6,
-      "_final_score_calc": "1 - (0.5*0.9 + 0.5*0.6) = 1 - 0.75 = 0.25",
+      "_final_score_calc": "0.5*0.9 + 0.5*0.6 = 0.75 = 0.25",
       "_explanation": {
         "out_of_context_code": "The payment gateway logic was not mentioned in the prompt.",
         "imaginary_functions_or_packages": "Function 'smartPayAutoBind()' does not exist in any standard library."
       }
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 technical_bias:
   description: >
@@ -213,6 +223,7 @@ technical_bias:
     - Evaluate each category (0–1).
     - Explain the type of bias detected.
     - Provide final_score and analysis.
+    - compute_final_score: 0.4 * style_bias + 0.3 * framework_bias + 0.3 * paradigm_bias
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -222,13 +233,15 @@ technical_bias:
       "style_bias": 0.8,
       "framework_bias": 0.2,
       "paradigm_bias": 0.4,
-      "_final_score_calc": "1 - (0.4*0.8 + 0.3*0.2 + 0.3*0.4) = 1 - 0.5 = 0.5",
+      "_final_score_calc": "0.4*0.8 + 0.3*0.2 + 0.3*0.4 = 0.5,
       "_explanation": {
         "style_bias": "Uses inline declarations throughout despite prompt not asking for it.",
         "framework_bias": "Imports 'Lombok' unnecessarily.",
         "paradigm_bias": "Applies unnecessary class structure to a simple script."
       }
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 inherent_bias:
   description: >
@@ -256,6 +269,7 @@ inherent_bias:
     - Detect and explain the **type** of bias present.
     - Provide score and reason per part.
     - Show final weighted score.
+    - compute_final_score: 0.5 * biased_variable_names + 0.5 * biased_comments_or_texts
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -264,12 +278,14 @@ inherent_bias:
     {
       "biased_variable_names": 0.6,
       "biased_comments_or_texts": 0.3,
-      "_final_score_calc": "1 - (0.5*0.6 + 0.5*0.3) = 1 - 0.45 = 0.55",
+      "_final_score_calc": "0.5*0.6 + 0.5*0.3 = 0.45,
       "_explanation": {
         "biased_variable_names": "'femaleBonusRate' implies bias.",
         "biased_comments_or_texts": "Comment at line 12 uses culturally insensitive phrasing."
       }
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 cyclomatic_complexity:
   description: >
@@ -287,6 +303,7 @@ cyclomatic_complexity:
     - Estimate the cyclomatic complexity (based on branching structures).
     - Return a score between 0–1 where 0 means simple (1–5 branches), 1 means highly complex (>20 branches).
     - Justify using control flow examples.
+    - compute_final_score: cyclomatic_complexity
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -296,6 +313,8 @@ cyclomatic_complexity:
       "cyclomatic_complexity": 0.7,
       "_explanation": "Found 18 conditional branches including multiple loops and IF-ELSE structures."
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+
 
 cognitive_complexity:
   description: >
@@ -313,6 +332,7 @@ cognitive_complexity:
     - Score between 0 (very easy to understand) and 1 (hard to follow).
     - Consider nesting, backward jumps, unclear logic, etc.
     - Justify why the score was given.
+    - compute_final_score: cognitive_complexity
 
     Return format:
     Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
@@ -322,3 +342,5 @@ cognitive_complexity:
       "cognitive_complexity": 0.6,
       "_explanation": "Deep nesting in multiple blocks and inconsistent naming increases mental load."
     }
+    Make sure the response contains a top-level key called "score" (float between 0.0 and 1.0).
+

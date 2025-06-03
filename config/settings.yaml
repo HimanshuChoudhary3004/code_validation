@@ -1,11 +1,11 @@
 # config/setting.yaml
 
 global:
-  num_workers: 4  # Number of threads for parallel KPI evaluations
+  num_workers: 6  # Number of threads for parallel KPI evaluations
 
 code_generation:
   enabled: true
-  model: gpt-3.5-turbo
+  model: gpt-4o
   input: input/code_generation.csv
   output: output/code_generation_results.csv
   kpis:
@@ -46,7 +46,7 @@ code_generation:
 # Code Enhancement Configuration
 code_enhancement:
   enabled: true
-  model: gpt-3.5-turbo
+  model: gpt-4o
   input: input/code_enhancement.csv
   output: output/code_enhancement_results.csv
   kpis:

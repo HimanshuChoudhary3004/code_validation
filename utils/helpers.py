@@ -16,7 +16,7 @@ def load_yaml(path: str) -> dict:
         return yaml.safe_load(f)
 
 def call_gpt(system_prompt: str, user_prompt: str, model: str) -> dict:
-    """Send a prompt to OpenAI and return the structured response (score + explanation)."""
+    """Send a prompt to OpenAI and return the best-available response, even if it's not valid JSON."""
     try:
         response = client.chat.completions.create(
             model=model,
@@ -28,23 +28,38 @@ def call_gpt(system_prompt: str, user_prompt: str, model: str) -> dict:
         )
         content = response.choices[0].message.content.strip()
 
-        # Remove markdown fences like ```json or ```
+        # Remove markdown formatting like ```json or ``` if present
         if content.startswith("```"):
             content = content.split("```")[1].strip()
 
         if not content:
-            return {"score": 1.0, "explanation": "[GPT Error] Empty response"}
-
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
             return {
                 "score": 1.0,
-                "explanation": f"[GPT Error] Invalid JSON format\nRaw GPT output:\n{content}"
+                "explanation": "[GPT Error] Empty response",
+                "raw_output": ""
+            }
+
+        try:
+            parsed = json.loads(content)
+            score = parsed.get("score", 1.0)
+            explanation = parsed.get("explanation", parsed)
+            return {
+                "score": score,
+                "explanation": explanation,
+                "raw_output": content
+            }
+        except json.JSONDecodeError:
+            # Still capture the raw output for inspection even if JSON fails
+            return {
+                "score": 1.0,
+                "explanation": "[GPT Error] Invalid JSON format",
+                "raw_output": content
             }
 
     except Exception as e:
         return {
             "score": 1.0,
-            "explanation": f"[GPT Error] {str(e)}"
+            "explanation": f"[GPT Error] {str(e)}",
+            "raw_output": ""
         }
+

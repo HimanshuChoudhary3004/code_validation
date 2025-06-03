@@ -1,0 +1,324 @@
+functional_correctness:
+  description: >
+    Evaluates whether the generated {{lang}} code correctly implements the logic described in the user prompt.
+    It should meet the required task, follow logical correctness, and use proper syntax for the language.
+
+    Scoring Breakdown:
+    - **task_coverage** (40%): Does the code fulfill all functional requirements explicitly asked in the prompt?
+    - **logic_validity** (40%): Are the conditions, loops, and logical structures correct and appropriate?
+    - **syntax_correctness** (20%): Is the syntax valid and free from compile-time or run-time errors?
+
+  weight_map:
+    task_coverage: 0.4
+    logic_validity: 0.4
+    syntax_correctness: 0.2
+
+  prompt: |
+    [KPI: Functional Correctness]
+    {{description}}
+
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Assign scores between 0–1 for each parameter.
+    - Provide detailed reasoning per parameter with code references.
+    - Explain issues, if any, and how they affect correctness.
+    - Compute final_score: 1 - (0.4 * task_coverage + 0.4 * logic_validity + 0.2 * syntax_correctness)
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+
+    Example:
+    {
+      "task_coverage": 0.8,
+      "logic_validity": 0.6,
+      "syntax_correctness": 1.0,
+      "_final_score_calc": "1 - (0.4*0.8 + 0.4*0.6 + 0.2*1.0) = 1 - 0.72 = 0.28",
+      "_explanation": {
+        "task_coverage": "Line 3 is missing the DB update logic mentioned in the prompt.",
+        "logic_validity": "Condition in line 5 uses 'OR' incorrectly, which may cause incorrect branching.",
+        "syntax_correctness": "The code compiles and executes successfully."
+      }
+    }
+
+maintainability:
+  description: >
+    Measures how easy the code is to read, understand, and maintain.
+
+    Scoring Breakdown:
+    - **modularity** (30%): Is the code broken into logical parts?
+    - **readability** (30%): Is indentation, spacing, structure clean?
+    - **comment_quality** (20%): Are there meaningful comments?
+    - **naming_conventions** (20%): Are variable/function names descriptive?
+
+  weight_map:
+    modularity: 0.3
+    readability: 0.3
+    comment_quality: 0.2
+    naming_conventions: 0.2
+
+  prompt: |
+    [KPI: Maintainability]
+    {{description}}
+
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Evaluate and score each component from 0–1.
+    - Give detailed explanations.
+    - Provide final_score using weighted formula.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "modularity": 0.7,
+      "readability": 0.9,
+      "comment_quality": 0.4,
+      "naming_conventions": 0.8,
+      "_final_score_calc": "1 - (0.3*0.7 + 0.3*0.9 + 0.2*0.4 + 0.2*0.8) = 1 - 0.69 = 0.31",
+      "_explanation": {
+        "modularity": "Functions are somewhat broken down but still large.",
+        "readability": "Code uses clear indentation and spacing.",
+        "comment_quality": "Few comments and not very explanatory.",
+        "naming_conventions": "Variables are reasonably well-named."
+      }
+    }
+
+code_smells:
+  description: >
+    Detects poor patterns and anti-practices in code.
+
+    Scoring Breakdown:
+    - **redundant_code** (30%): Repetitive/unnecessary lines
+    - **deep_nesting** (20%): More than 3-level nested structures
+    - **unused_variables** (25%): Declared but unused
+    - **long_functions** (25%): Excessive length or complexity
+
+  weight_map:
+    redundant_code: 0.3
+    deep_nesting: 0.2
+    unused_variables: 0.25
+    long_functions: 0.25
+
+  prompt: |
+    [KPI: Code Smells]
+    {{description}}
+
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Evaluate and score each smell from 0–1.
+    - Explain where and why the smell occurs.
+    - Compute the final_score.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "redundant_code": 0.2,
+      "deep_nesting": 0.6,
+      "unused_variables": 0.5,
+      "long_functions": 0.4,
+      "_final_score_calc": "1 - (0.3*0.2 + 0.2*0.6 + 0.25*0.5 + 0.25*0.4) = 1 - 0.405 = 0.595",
+      "_explanation": {
+        "redundant_code": "Lines 5 and 10 repeat the same logic.",
+        "deep_nesting": "Nested IFs found inside loops at line 20.",
+        "unused_variables": "var_x is declared but never used.",
+        "long_functions": "Function starting at line 2 is 45 lines long."
+      }
+    }
+
+hallucination:
+  description: >
+    Detects whether code includes irrelevant or imaginary content.
+
+    Scoring Breakdown:
+    - **out_of_context_code** (50%): Logic not relevant to prompt
+    - **imaginary_functions_or_packages** (50%): Fabricated APIs/libraries
+
+  weight_map:
+    out_of_context_code: 0.5
+    imaginary_functions_or_packages: 0.5
+
+  prompt: |
+    [KPI: Hallucination]
+    {{description}}
+
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Identify hallucinated parts and score each sub-criteria (0–1).
+    - Explain clearly what is out-of-context or imaginary.
+    - Return final_score using formula.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "out_of_context_code": 0.9,
+      "imaginary_functions_or_packages": 0.6,
+      "_final_score_calc": "1 - (0.5*0.9 + 0.5*0.6) = 1 - 0.75 = 0.25",
+      "_explanation": {
+        "out_of_context_code": "The payment gateway logic was not mentioned in the prompt.",
+        "imaginary_functions_or_packages": "Function 'smartPayAutoBind()' does not exist in any standard library."
+      }
+    }
+
+technical_bias:
+  description: >
+    Detects structural or syntactic preferences that are unjustified.
+
+    Scoring Breakdown:
+    - **style_bias** (40%): Forced use of modern/unrequested styles
+    - **framework_bias** (30%): Unjustified library/framework usage
+    - **paradigm_bias** (30%): Forcing OOP or procedural pattern
+
+  weight_map:
+    style_bias: 0.4
+    framework_bias: 0.3
+    paradigm_bias: 0.3
+
+  prompt: |
+    [KPI: Technical Bias]
+    {{description}}
+
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Evaluate each category (0–1).
+    - Explain the type of bias detected.
+    - Provide final_score and analysis.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "style_bias": 0.8,
+      "framework_bias": 0.2,
+      "paradigm_bias": 0.4,
+      "_final_score_calc": "1 - (0.4*0.8 + 0.3*0.2 + 0.3*0.4) = 1 - 0.5 = 0.5",
+      "_explanation": {
+        "style_bias": "Uses inline declarations throughout despite prompt not asking for it.",
+        "framework_bias": "Imports 'Lombok' unnecessarily.",
+        "paradigm_bias": "Applies unnecessary class structure to a simple script."
+      }
+    }
+
+inherent_bias:
+  description: >
+    Detects gender, ethnic, or cultural bias.
+
+    Scoring Breakdown:
+    - **biased_variable_names** (50%): Stereotyped names (e.g., 'he_salary')
+    - **biased_comments_or_texts** (50%): Offensive/culturally biased text
+
+  weight_map:
+    biased_variable_names: 0.5
+    biased_comments_or_texts: 0.5
+
+  prompt: |
+    [KPI: Inherent Bias]
+    {{description}}
+
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Detect and explain the **type** of bias present.
+    - Provide score and reason per part.
+    - Show final weighted score.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "biased_variable_names": 0.6,
+      "biased_comments_or_texts": 0.3,
+      "_final_score_calc": "1 - (0.5*0.6 + 0.5*0.3) = 1 - 0.45 = 0.55",
+      "_explanation": {
+        "biased_variable_names": "'femaleBonusRate' implies bias.",
+        "biased_comments_or_texts": "Comment at line 12 uses culturally insensitive phrasing."
+      }
+    }
+
+cyclomatic_complexity:
+  description: >
+    Evaluates the number of linearly independent paths in the code. High scores suggest the logic is too complex or convoluted.
+
+  prompt: |
+    [KPI: Cyclomatic Complexity]
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Estimate the cyclomatic complexity (based on branching structures).
+    - Return a score between 0–1 where 0 means simple (1–5 branches), 1 means highly complex (>20 branches).
+    - Justify using control flow examples.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "cyclomatic_complexity": 0.7,
+      "_explanation": "Found 18 conditional branches including multiple loops and IF-ELSE structures."
+    }
+
+cognitive_complexity:
+  description: >
+    Measures how difficult the code is to understand based on nesting, mental jumps, and non-linear flow.
+
+  prompt: |
+    [KPI: Cognitive Complexity]
+    Prompt:
+    {{prompt}}
+
+    Code:
+    {{code}}
+
+    Instructions:
+    - Score between 0 (very easy to understand) and 1 (hard to follow).
+    - Consider nesting, backward jumps, unclear logic, etc.
+    - Justify why the score was given.
+
+    Return format:
+    Return only a raw, properly structured JSON object without any markdown, headings, code blocks, or explanatory text outside the JSON.
+
+    Example:
+    {
+      "cognitive_complexity": 0.6,
+      "_explanation": "Deep nesting in multiple blocks and inconsistent naming increases mental load."
+    }

@@ -1,41 +1,78 @@
-from utils.helpers import gpt_score, load_prompt_template, render_prompt
-from metrics.shared import calculate_cyclomatic_complexity, normalize_score
+import json
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor
+from typing import Tuple
+from utils.helpers import (
+    call_gpt,
+    load_yaml,
+    render_template
+)
 
-def run_generation_kpis(rows, mode_settings):
-    output = []
-    for row in rows:
-        code = row['code']
-        lang = row['file_extension'].lower()
-        prompt_text = row.get('prompt', '')
-        result = row.copy()
+class CodeGenerationEvaluator:
+    def __init__(self, settings: dict, input_path: str, output_path: str):
+        self.settings = settings
+        self.input_path = input_path
+        self.output_path = output_path
+        self.model = settings['model']
+        self.kpis = settings['kpis']
+        self.max_workers = settings.get('max_workers', 4)
 
-        for kpi, config in mode_settings['kpis'].items():
-            if not config.get('enabled'):
-                continue
+        # Load template and system prompt
+        self.templates = load_yaml("prompts/template_generation.yaml")
+        self.system_prompt = load_yaml("system_prompts/code_generation_system_prompt.yaml")["system_prompt"]
 
-            if kpi in ['functional_correctness', 'maintainability', 'code_smells','hallucination', 'technical_bias' ]:
-                template = load_prompt_template("code_generation", kpi)
-                prompt = render_prompt(template, {
-                    "lang": lang,
-                    "code": code,
-                    "prompt": prompt_text
-                })
-                response = gpt_score(prompt, model=mode_settings['model'])
-                score, explanation = response.get("score", 0.0), response.get("explanation", "No explanation returned.")
-                result[f"{kpi}_score"] = round(score, 2)
-                result[f"{kpi}_explanation"] = explanation
+    def run_kpi(self, kpi_name: str, prompt_text: str) -> Tuple[float, dict]:
+        try:
+            response = call_gpt(
+                system_prompt=self.system_prompt,
+                user_prompt=prompt_text,
+                model=self.model
+            )
+            return float(response["score"]), response["explanation"]
+        except Exception as e:
+            return 1.0, f"[GPT Error] {str(e)}"
 
-            elif kpi == 'cyclomatic_complexity':
-                raw = calculate_cyclomatic_complexity(code, f".{lang}")
-                score = normalize_score(raw, baseline=5, threshold=config['threshold'])
-                result[f"{kpi}_score"] = round(score, 2)
-                result[f"{kpi}_explanation"] = f"Cyclomatic complexity is {raw}. Target is under {config['threshold']}."
+    def evaluate_row(self, row: pd.Series, kpi_name: str, kpi_config: dict) -> Tuple[str, float, dict]:
+        try:
+            template_entry = self.templates.get(kpi_name)
+            if not template_entry:
+                if kpi_name in ["cyclomatic_complexity", "cognitive_complexity"]:
+                    return kpi_name, 1.0, "[Internal Info] Template not needed (static KPI)"
+                return kpi_name, 1.0, "[Internal Error] Template not found"
 
-            elif kpi == 'cognitive_complexity':
-                nesting_level = code.count('IF') + code.count('CASE')
-                score = normalize_score(nesting_level, baseline=2, threshold=config['threshold'])
-                result[f"{kpi}_score"] = round(score, 2)
-                result[f"{kpi}_explanation"] = f"Estimated nesting level is {nesting_level}. Target should be under {config['threshold']}."
+            prompt_text = render_template(template_entry["prompt"], {
+                "lang": row["file_extension"],
+                "prompt": row["prompt"],
+                "code": row["code"]
+            })
 
-        output.append(result)
-    return output
+            score, explanation = self.run_kpi(kpi_name, prompt_text)
+            return kpi_name, score, explanation
+
+        except Exception as e:
+            return kpi_name, 1.0, f"[Internal Error] {str(e)}"
+
+    def run(self):
+        df = pd.read_csv(self.input_path)
+        print(f"📦 Loaded {len(df)} rows from {self.input_path}")
+        results = []
+
+        for i, row in df.iterrows():
+            row_result = row.copy()
+            print(f"🔍 Evaluating row {i + 1}/{len(df)}: Language = {row['file_extension']}")
+
+            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                tasks = [
+                    executor.submit(self.evaluate_row, row, kpi, config)
+                    for kpi, config in self.kpis.items() if config.get("enabled", True)
+                ]
+
+                for task in tasks:
+                    kpi, score, explanation = task.result()
+                    row_result[f"{kpi}_score"] = score
+                    row_result[f"{kpi}_explanation"] = explanation
+
+            results.append(row_result)
+
+        pd.DataFrame(results).to_csv(self.output_path, index=False)
+        print(f"✅ Code Generation Evaluation complete. Output saved to: {self.output_path}")

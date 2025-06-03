@@ -1,0 +1,7 @@
+[2025-06-02 16:25:37,255] INFO - ⚙️  Dual mode enabled — running both code_generation and code_enhancement...
+
+[2025-06-02 16:25:37,255] INFO - 🚀 [Start] Code Generation Evaluation
+[2025-06-02 16:25:37,255] INFO - 📦 Loaded 5 code generation rows
+[2025-06-02 16:25:37,255] INFO - 🚀 Running Code Generation KPI Evaluation...
+[2025-06-02 16:25:37,255] INFO - 🔍 Evaluating row 1 with language: abap
+[2025-06-02 16:25:37,255] INFO - ⚙️ Evaluating KPI: hallucination

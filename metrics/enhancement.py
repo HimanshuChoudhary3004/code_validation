@@ -1,65 +1,82 @@
-from utils.helpers import gpt_score, load_prompt_template, render_prompt
-from metrics.shared import calculate_cyclomatic_complexity, normalize_score
+import json
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor
+from utils.helpers import (
+    call_gpt,
+    load_yaml,
+    render_template
+)
 
-def run_enhancement_kpis(rows, mode_settings):
-    output = []
-    for row in rows:
-        result = row.copy()
-        original = row['original_code']
-        enhanced = row['enhanced_code']
-        lang = row['file_extension'].lower()
-        enhancement_prompt = row.get('enhancement_prompt', '')
+class EnhancementKPIEvaluator:
+    def __init__(self, config: dict, input_path: str, output_path: str):
+        self.config = config
+        self.input_path = input_path
+        self.output_path = output_path
+        self.model = config['model']
+        self.kpis = config['kpis']
+        self.max_workers = config.get('workers', 4)
 
-        for kpi, config in mode_settings['kpis'].items():
-            if not config.get('enabled'):
-                continue
+        # Load system prompt and KPI templates
+        self.system_prompt = load_yaml("system_prompts/code_enhancement_system_prompt.yaml")["system_prompt"]
+        self.templates = load_yaml("prompts/template_enhancement.yaml")
 
-            if kpi in [
-                'functional_correctness', 'maintainability',
-                'goal_fulfillment', 'regression_safety', 'code_smells',
-                'hallucination', 'technical_bias' 
-            ]:
-                template = load_prompt_template("code_enhancement", kpi)
-                prompt = render_prompt(template, {
-                    "lang": lang,
-                    "original": original,
-                    "enhanced": enhanced,
-                    "enhancement_prompt": enhancement_prompt
+    def run_kpi(self, kpi_name: str, prompt: str):
+        try:
+            result = call_gpt(
+                system_prompt=self.system_prompt,
+                user_prompt=prompt,
+                model=self.model
+            )
+            return float(result["score"]), result["explanation"]
+        except Exception as e:
+            return 1.0, f"[GPT Error] {str(e)}"
+
+    def evaluate_kpi_wrapper(self, kpi_name: str, prompt_text: str):
+        score, explanation = self.run_kpi(kpi_name, prompt_text)
+        return kpi_name, score, explanation
+
+    def evaluate_row(self, row: pd.Series, row_index: int):
+        result_row = row.copy()
+        print(f"🔍 Evaluating row {row_index + 1}: lang = {row['file_extension']}")
+
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            tasks = []
+
+            for kpi_name, kpi_cfg in self.kpis.items():
+                if not kpi_cfg.get("enabled", True):
+                    continue
+
+                template = self.templates.get(kpi_name)
+                if not template:
+                    if kpi_name in ["cyclomatic_complexity", "cognitive_complexity"]:
+                        continue  # Skip non-GPT KPIs gracefully
+                    print(f"[Warning] Missing template for KPI: {kpi_name}")
+                    continue
+
+                prompt_text = render_template(template["prompt"], {
+                    "lang": row["file_extension"],
+                    "original_code": row["original_code"],
+                    "enhancement_prompt": row.get("enhancement_prompt", ""),
+                    "enhanced_code": row["enhanced_code"]
                 })
-                response = gpt_score(prompt, model=mode_settings['model'])
-                score = response.get("score", 0.0)
-                explanation = response.get("explanation", "No explanation returned.")
-                result[f"{kpi}_score"] = round(score, 2)
-                result[f"{kpi}_explanation"] = explanation
 
-            elif kpi == 'smell_delta':
-                template = load_prompt_template("code_enhancement", "smell_delta")
-                prompt = render_prompt(template, {
-                    "lang": lang,
-                    "original": original,
-                    "enhanced": enhanced
-                })
-                response = gpt_score(prompt, model=mode_settings['model'])
-                score = response.get("score", 0.0)
-                explanation = response.get("explanation", "No explanation returned.")
-                result["smell_delta_score"] = round(score, 2)
-                result["smell_delta_explanation"] = explanation
+                tasks.append(executor.submit(self.evaluate_kpi_wrapper, kpi_name, prompt_text))
 
-            elif kpi == 'cyclomatic_delta':
-                before = calculate_cyclomatic_complexity(original, f".{lang}")
-                after = calculate_cyclomatic_complexity(enhanced, f".{lang}")
-                delta = before - after
-                score = normalize_score(delta, 0, config['threshold'])
-                result[f"{kpi}_score"] = round(score, 2)
-                result[f"{kpi}_explanation"] = f"Cyclomatic complexity changed: {before} → {after}."
+            for task in tasks:
+                kpi_name, score, explanation = task.result()
+                result_row[f"{kpi_name}_score"] = score
+                result_row[f"{kpi_name}_explanation"] = explanation
 
-            elif kpi == 'cognitive_delta':
-                nesting_before = original.count('IF') + original.count('CASE')
-                nesting_after = enhanced.count('IF') + enhanced.count('CASE')
-                delta = nesting_before - nesting_after
-                score = normalize_score(delta, 0, config['threshold'])
-                result[f"{kpi}_score"] = round(score, 2)
-                result[f"{kpi}_explanation"] = f"Cognitive nesting changed: {nesting_before} → {nesting_after}."
+        return result_row
 
-        output.append(result)
-    return output
+    def run_all(self):
+        df = pd.read_csv(self.input_path)
+        print(f"📦 Loaded {len(df)} enhancement rows from {self.input_path}")
+
+        results = []
+        for i, row in df.iterrows():
+            evaluated = self.evaluate_row(row, i)
+            results.append(evaluated)
+
+        pd.DataFrame(results).to_csv(self.output_path, index=False)
+        print(f"✅ Enhancement KPI Evaluation complete. Output saved to: {self.output_path}")

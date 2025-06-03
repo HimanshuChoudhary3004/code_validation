@@ -1,52 +1,50 @@
-import re
-import time
 import yaml
+from pathlib import Path
 from jinja2 import Template
-import openai
+from openai import OpenAI
+import json
 
-# Use the default OpenAI client (will use API key from env)
-client = openai.OpenAI()
+client = OpenAI()
 
-# Global cache for prompt templates
-PROMPT_CACHE = None
-
-def render_prompt(template_str: str, context: dict) -> str:
+def render_template(template_str: str, context: dict) -> str:
+    """Render a Jinja2 template string with given variables."""
     return Template(template_str).render(**context)
 
-def load_prompt_template(mode: str, kpi: str) -> str:
-    global PROMPT_CACHE
-    if PROMPT_CACHE is None:
-        with open("prompts/prompt_templates.yaml", "r", encoding="utf-8") as f:
-            PROMPT_CACHE = yaml.safe_load(f)
+def load_yaml(path: str) -> dict:
+    """Load a YAML file and return its contents as a dictionary."""
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
+def call_gpt(system_prompt: str, user_prompt: str, model: str) -> dict:
+    """Send a prompt to OpenAI and return the structured response (score + explanation)."""
     try:
-        return PROMPT_CACHE[mode][kpi]
-    except KeyError:
-        raise ValueError(f"Prompt not found for mode='{mode}' and kpi='{kpi}'.")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.2
+        )
+        content = response.choices[0].message.content.strip()
 
-def gpt_score(prompt: str, model: str, retries=3) -> dict:
-    for attempt in range(retries):
+        # Remove markdown fences like ```json or ```
+        if content.startswith("```"):
+            content = content.split("```")[1].strip()
+
+        if not content:
+            return {"score": 1.0, "explanation": "[GPT Error] Empty response"}
+
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0,
-            )
-            content = response.choices[0].message.content
-            return parse_gpt_response(content)
-        except Exception as e:
-            print(f"⚠️ GPT call failed on attempt {attempt + 1}: \n{e}")
-            time.sleep(1)
-    return {"score": 0.0, "explanation": "GPT call failed."}
+            return json.loads(content)
+        except json.JSONDecodeError:
+            return {
+                "score": 1.0,
+                "explanation": f"[GPT Error] Invalid JSON format\nRaw GPT output:\n{content}"
+            }
 
-def parse_gpt_response(content: str) -> dict:
-    score_match = re.search(r"SCORE:\s*([0-9.]+)", content, re.IGNORECASE)
-    score = float(score_match.group(1)) if score_match else 0.0
-
-    explanation_match = re.search(r"EXPLANATION:\s*(.*)", content, re.IGNORECASE | re.DOTALL)
-    explanation = explanation_match.group(1).strip() if explanation_match else "No explanation provided."
-
-    return {
-        "score": score,
-        "explanation": explanation
-    }
+    except Exception as e:
+        return {
+            "score": 1.0,
+            "explanation": f"[GPT Error] {str(e)}"
+        }

@@ -1,0 +1,34 @@
+file_extension,prompt,code,functional_correctness_score,functional_correctness_explanation,maintainability_score,maintainability_explanation,code_smells_score,code_smells_explanation,hallucination_score,hallucination_explanation,technical_bias_score,technical_bias_explanation,inherent_bias_score,inherent_bias_explanation,cyclomatic_complexity_score,cyclomatic_complexity_explanation,cognitive_complexity_score,cognitive_complexity_explanation
+abap,Write ABAP code to display the current date in SAP GUI,"DATA lv_date TYPE sy-datum.
+lv_date = sy-datum.
+WRITE: / 'Today''s Date:', lv_date.",0.2,"{'task_coverage': 'The code correctly displays the current date in SAP GUI as requested in the prompt.', 'logic_validity': 'The logic to assign the current date to lv_date and then display it is correct and fulfills the functional requirement.', 'syntax_correctness': 'The code is syntactically correct and will execute without errors.'}",1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score'
+rap,Create a RAP behavior implementation to fetch customer data from ZCUSTOMER,"METHOD read_entity.
+SELECT * FROM zcustomer INTO TABLE result.
+ENDMETHOD.",1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score'
+ui5,Create a UI5 controller to show a message toast when a button is clicked,"sap.ui.define([
+  'sap/ui/core/mvc/Controller',
+  'sap/m/MessageToast'
+], function(Controller, MessageToast) {
+  return Controller.extend('demo.controller.Main', {
+    onPress: function () {
+      MessageToast.show('Button Pressed');
+    }
+  });
+});",0.2,"{'task_coverage': 'The code fully covers the required functionality of showing a message toast when a button is clicked.', 'logic_validity': ""The logic implemented in the code is correct and directly fulfills the prompt's requirements."", 'syntax_correctness': 'The code is syntactically correct and follows the UI5 controller structure without any errors.'}",0.0,"{'modularity': 'The code is well-segmented into a separate function for the button click event, enhancing modularity.', 'readability': 'The code is clear, concise, and easy to follow, contributing to high readability.'}",1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score'
+sql,Write a SQL query to retrieve names and emails of active users,"SELECT name, email FROM users WHERE status = 'active';",1.0,[GPT Error] 'score',1.0,"[GPT Error] Invalid JSON format
+Raw GPT output:
+{
+  ""modularity"": 1.0,
+  ""readability"": 1.0,
+  ""_final_score_calc"": ""1 - (0.5*1.0 + 0.5*1.0) = 1 - 1.0 = 0.0"",
+  ""score"": 0.0,
+  ""explanation"": {
+    ""modularity"": ""The SQL query is concise and focused on retrieving the required data without unnecessary complexity."",
+    ""readability"": ""The SQL query is easy to read and understand, following standard SQL syntax."",
+  }
+}",1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score'
+plsql,Write a PL/SQL procedure to grant 10% bonus to high performers,"CREATE OR REPLACE PROCEDURE update_bonus IS
+BEGIN
+  UPDATE employees SET bonus = salary * 0.10 WHERE performance_rating = 'A';
+  COMMIT;
+END;",0.2,"{'task_coverage': 'The code correctly updates the bonus for high performers as per the prompt.', 'logic_validity': ""The logic to update the bonus for employees with a performance rating of 'A' is correctly implemented."", 'syntax_correctness': 'The PL/SQL procedure syntax is correct and the code will execute without errors.'}",0.04,"{'modularity': 'The procedure is well-contained and focused on a single task.', 'readability': 'The code is well-formatted and easy to follow.', 'comment_quality': 'Although lacking comments, the code is self-explanatory due to its simplicity.', 'naming_conventions': 'Variables and procedure names are clear and descriptive.'}",1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score',1.0,[GPT Error] 'score'

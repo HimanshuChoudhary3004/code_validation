@@ -1,77 +1,85 @@
-dual_mode: true
+# config/setting.yaml
 
-# Code generation settings
+global:
+  num_workers: 4  # Number of threads for parallel KPI evaluations
+
 code_generation:
   enabled: true
   model: gpt-3.5-turbo
-
+  input: input/code_generation.csv
+  output: output/code_generation_results.csv
   kpis:
-    hallucination:
-      enabled: true
-      threshold: 0.6
-
-    technical_bias:
-      enabled: true
-      threshold: 0.7
-
     functional_correctness:
       enabled: true
-      threshold: 0.8
+      inputs: ["prompt", "code"]
 
     maintainability:
       enabled: true
-      threshold: 0.75
+      inputs: ["code"]
 
     code_smells:
       enabled: true
-      threshold: 0.85
+      inputs: ["code"]
+
+    hallucination:
+      enabled: true
+      inputs: ["prompt", "code"]
+
+    technical_bias:
+      enabled: true
+      inputs: ["prompt", "code"]
+
+    inherent_bias:
+      enabled: true
+      inputs: ["prompt", "code"]
 
     cyclomatic_complexity:
       enabled: true
+      inputs: ["code"]
       threshold: 10
 
     cognitive_complexity:
       enabled: true
-      threshold: 12
+      inputs: ["code"]
+      threshold: 6
 
-# Code enhancement settings
+# Code Enhancement Configuration
 code_enhancement:
   enabled: true
   model: gpt-3.5-turbo
-
+  input: input/code_enhancement.csv
+  output: output/code_enhancement_results.csv
   kpis:
-    hallucination:
-      enabled: true
-      threshold: 0.6
-
-    technical_bias:
-      enabled: true
-      threshold: 0.7
-
     functional_correctness:
       enabled: true
-      threshold: 0.8
+      inputs: ["original_code", "enhancement_prompt", "enhanced_code"]
 
     maintainability:
       enabled: true
-      threshold: 0.75
+      inputs: ["enhanced_code"]
 
-    smell_delta:
+    code_smells:
       enabled: true
-      threshold: 0.0
+      inputs: ["enhanced_code"]
 
-    cyclomatic_delta:
+    hallucination:
       enabled: true
-      threshold: 0
+      inputs: ["original_code", "enhancement_prompt", "enhanced_code"]
 
-    cognitive_delta:
+    technical_bias:
       enabled: true
-      threshold: 0
+      inputs: ["original_code", "enhancement_prompt", "enhanced_code"]
 
-    goal_fulfillment:
+    inherent_bias:
       enabled: true
-      threshold: 0.85
+      inputs: ["original_code", "enhancement_prompt", "enhanced_code"]
 
-    regression_safety:
+    cyclomatic_complexity:
       enabled: true
-      threshold: 0.9
+      inputs: ["enhanced_code"]
+      threshold: 10
+
+    cognitive_complexity:
+      enabled: true
+      inputs: ["enhanced_code"]
+      threshold: 6
